@@ -14,13 +14,20 @@ class SplashScreenViewController: UIViewController {
     private var logoImageView: UIImageView!
     private var viewModel = SplashScreenViewModel()
     private let disposeBag = DisposeBag()
+    private var alertView: AlertHandler?
+    private let activityIndicator = ActivityIndicator()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         bindViewModel()
         configureDesign()
+        configureAlert()
         setupImageView()
         requestConfigurations()
+    }
+    
+    private func configureAlert() {
+        alertView = AlertHandler(presentingViewCtrl: self)
     }
 
     private func requestConfigurations() {
@@ -46,7 +53,18 @@ class SplashScreenViewController: UIViewController {
     //MARK: -  binding Methods
 
     private func bindViewModel() {
+        bindError()
         bindLoading()
+    }
+
+    private func bindError() {
+        viewModel
+            .error
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] error in
+                self?.alertView?.showErrorMessage(message: error)
+            })
+            .disposed(by: disposeBag)
     }
     
     private func bindLoading() {
@@ -54,11 +72,18 @@ class SplashScreenViewController: UIViewController {
             .loading
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] isLoading in
-                if !isLoading {
-                    self?.navigateToProductsApp()
-                }
+                self?.handleLoadingIndicator(isLoading: isLoading)
             })
             .disposed(by: disposeBag)
+    }
+
+    private func handleLoadingIndicator(isLoading: Bool) {
+        if isLoading {
+            activityIndicator.displayForLoading(in: view)
+        } else {
+            activityIndicator.dismiss()
+            navigateToProductsApp()
+        }
     }
 
     private func navigateToProductsApp() {
@@ -74,5 +99,6 @@ class SplashScreenViewController: UIViewController {
         navigationController.viewControllers = [mainView]
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
+        UIView.transition(with: window, duration: 1, options: .transitionCrossDissolve, animations: {}, completion: nil)
     }
 }

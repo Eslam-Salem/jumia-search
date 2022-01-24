@@ -8,15 +8,6 @@
 
 import Foundation
 
-struct ErrorDetailsResponseModel: Decodable {
-    var reason: String?
-    var message: String?
-}
-
-struct ErrorMessagesResponseModel: Decodable {
-    var error: ErrorDetailsResponseModel?
-}
-
 struct ProductsResultsResponseModel: Decodable {
     var sku: String?
     var name: String?

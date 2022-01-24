@@ -14,6 +14,7 @@ import UIScrollView_InfiniteScroll
 class ProductsViewController: UIViewController {
     private var collectionView: UICollectionView!
     private var headerActionsView: HeaderActionsView!
+    private var filterAndSortView: FilterAndSortView!
     private var containerStackView: UIStackView!
 
     private let viewModel = ProductsViewModel()
@@ -47,6 +48,7 @@ class ProductsViewController: UIViewController {
     private func configureScreenDesign() {
         addContainerStackView()
         addTopActionView()
+        addFiltersAndSortView()
         addCollectionView()
     }
     
@@ -60,11 +62,18 @@ class ProductsViewController: UIViewController {
     private func addTopActionView() {
         headerActionsView = HeaderActionsView()
         headerActionsView.heightAnchor.constraint(equalToConstant: 100).isActive = true
+        headerActionsView.isSearchingEnabled = true
         headerActionsView.searchForNewItem = { [weak self] in
             self?.viewModel.resetDataSource()
             self?.requestList()
         }
         containerStackView.addArrangedSubview(headerActionsView)
+    }
+    
+    private func addFiltersAndSortView() {
+        filterAndSortView = FilterAndSortView()
+        filterAndSortView.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        containerStackView.addArrangedSubview(filterAndSortView)
     }
     
     private func addCollectionView() {
@@ -108,7 +117,7 @@ class ProductsViewController: UIViewController {
             .itemSelected
                 .subscribe(onNext:{ [weak self] indexPath in
                     guard let self = self,
-                          let selectedProductID = self.viewModel.productsDataSource[indexPath.row].productID
+                          let selectedProductID = self.viewModel.getProductIDForProduct(at: indexPath.row)
                     else { return }
                     ProductDetailsConfigurator.navigateToProductDetails(productID: selectedProductID, presentingViewController: self)
                 }).disposed(by: disposeBag)

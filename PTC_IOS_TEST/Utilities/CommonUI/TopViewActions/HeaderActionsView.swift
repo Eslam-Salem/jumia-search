@@ -12,6 +12,11 @@ import HandyUIKit
 class HeaderActionsView: UIView, NibLoadable {
     var goBackHandler: (() -> Void)?
     var searchForNewItem: (() -> Void)?
+    var isSearchingEnabled: Bool = true {
+        didSet {
+            searchButton.isUserInteractionEnabled = isSearchingEnabled
+        }
+    }
     @IBOutlet private var textField: UITextField!
     @IBOutlet private var backButton: UIButton!
     @IBOutlet private var searchButton: UIButton!
@@ -43,10 +48,21 @@ class HeaderActionsView: UIView, NibLoadable {
     }
 
     private func configureDesign() {
+        textField.isUserInteractionEnabled = false
+        textField.delegate = self
+        textField.returnKeyType = UIReturnKeyType.search
         textField.keyboardToolbar.doneBarButton.setTarget(self, action: #selector(doneButtonClicked))
     }
     
     @objc func doneButtonClicked() {
         searchForNewItem?()
+    }
+}
+
+extension HeaderActionsView: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        searchForNewItem?()
+        return false
     }
 }

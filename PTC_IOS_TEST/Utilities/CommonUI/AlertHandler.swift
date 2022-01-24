@@ -14,9 +14,11 @@ class AlertHandler {
         self.presentingViewCtrl = presentingViewCtrl
     }
 
-    func showErrorMessage(message: String) {
+    func showErrorMessage(message: String, completion: (() -> Void)? = nil) {
         let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-        let okAction = UIAlertAction(title: "Ok", style: .cancel)
+        let okAction = UIAlertAction(title: "Ok", style: .cancel) { UIAlertAction in
+            if let completion = completion { completion() }
+        }
         alert.addAction(okAction)
         presentingViewCtrl?.present(alert, animated: true)
     }

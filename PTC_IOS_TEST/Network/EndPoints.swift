@@ -16,16 +16,16 @@ class EndPoints {
     
     func searchForProducts(key: String, pageNumber: Int) -> String {
         let url = baseURL + "search/\(key)/page/\(pageNumber)/"
-        return url
+        return url.addingPercentEncoding( withAllowedCharacters: .urlQueryAllowed) ?? ""
     }
     
     func requestProjectConfiguration() -> String {
         let url = baseURL + "configurations/"
-        return url
+        return url.addingPercentEncoding( withAllowedCharacters: .urlQueryAllowed) ?? ""
     }
     
     func requestProductDetails(productID: String) -> String {
         let url = baseURL + "product/\(productID)/"
-        return url
+        return url.addingPercentEncoding( withAllowedCharacters: .urlQueryAllowed) ?? ""
     }
 }

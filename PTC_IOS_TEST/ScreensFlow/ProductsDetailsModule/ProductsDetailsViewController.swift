@@ -50,6 +50,7 @@ class ProductsDetailsViewController: UIViewController {
     private func addTopActionView() {
         headerActionsView = HeaderActionsView()
         headerActionsView.heightAnchor.constraint(equalToConstant: 100).isActive = true
+        headerActionsView.isSearchingEnabled = false
         headerActionsView.goBackHandler = { [weak self] in
             self?.navigationController?.popViewController(animated: true)
         }
@@ -102,7 +103,9 @@ class ProductsDetailsViewController: UIViewController {
             .error
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] error in
-                self?.alertView?.showErrorMessage(message: error)
+                self?.alertView?.showErrorMessage(message: error) { [weak self] in
+                    self?.navigationController?.popViewController(animated: true)
+                }
             })
             .disposed(by: disposeBag)
     }

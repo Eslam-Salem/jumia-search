@@ -17,71 +17,85 @@ struct ProductDetailsView: View {
     @ObservedObject var viewModel: ProductDetailsViewModel
     
     var body: some View {
-        VStack(alignment: .center) {
-            if let url = URL(string: viewModel.selectedImage) {
-                WebImage(url: url)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 250.0, height: 250.0, alignment: .center)
-                    .clipped()
-            }
-            Group {
-                VStack(alignment: .leading) {
-                    Divider()
-                        .padding(.top, 10)
-                    
-                    HStack {
-                        Text(String(describing: viewModel.productDetails?.currentPrice ?? 0))
-                            .font(.system(size: 17))
-                            .foregroundColor(Color.black)
-                        Text(String(describing: viewModel.productDetails?.oldPrice ?? 0))
-                            .font(.system(size: 17))
-                            .foregroundColor(Color.gray)
-                            .overlay(
-                                Rectangle().frame(height: 1).offset(y: 0).foregroundColor(Color.gray), alignment: .center)
-                        Spacer()
-                            .frame(width: 15)
-                        ZStack {
-                            Text("\(viewModel.productDetails?.discount ?? 0)%")
-                                .font(.system(size: 12))
-                                .foregroundColor(Color.darkYellow)
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(alignment: .center) {
+                if let url = URL(string: viewModel.selectedImage) {
+                    WebImage(url: url)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 250.0, height: 250.0, alignment: .center)
+                        .clipped()
+                }
+                ScrollView(.horizontal, showsIndicators: false) {
+                    if let images = viewModel.productDetails?.images ?? [] {
+                        HStack(spacing: 12) {
+                            ForEach(0..<images.count, id:\.self) { index in
+                                ProductImageView(productImage: images[index], isActive: viewModel.selectedImage == images[index] ? true : false ) {
+                                    viewModel.selectedImage = images[index]
+                                }
+                            }
                         }
-                        .frame(width: 50, height: 30)
-                        .border(Color.darkYellow, width: 2)
                     }
-                    .padding(.top, 15)
-                    Divider().padding(.top, 10)
+                }
+                .padding([.horizontal, .top], 20)
+                Group {
+                    VStack(alignment: .leading) {
+                        Divider()
+                            .padding(.top, 10)
+
+                        HStack {
+                            Text(String(describing: viewModel.productDetails?.currentPrice ?? 0))
+                                .font(.system(size: 17))
+                                .foregroundColor(Color.black)
+                            Text(String(describing: viewModel.productDetails?.oldPrice ?? 0))
+                                .font(.system(size: 17))
+                                .foregroundColor(Color.gray)
+                                .overlay(
+                                    Rectangle().frame(height: 1).offset(y: 0).foregroundColor(Color.gray), alignment: .center)
+                            Spacer()
+                                .frame(width: 15)
+                            ZStack {
+                                Text("\(viewModel.productDetails?.discount ?? 0)%")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(Color.darkYellow)
+                            }
+                            .frame(width: 50, height: 30)
+                            .border(Color.darkYellow, width: 2)
+                        }
+                        .padding(.top, 15)
+                        Divider().padding(.top, 10)
+                        
+                        let ratingTotalUsers = viewModel.productDetails?.ratingTotal ?? 0
+                        let ratingAverage = viewModel.productDetails?.ratingAverage ?? 0
+                        HStack {
+                            MyCosmosView(rating: .constant(ratingAverage), starSize: 27)
+                            Text("\(ratingTotalUsers) Rating")
+                                .font(.system(size: 14))
+                                .foregroundColor(Color.blue)
+                                .padding(.horizontal, 10)
+                        }
+                        .padding(.top, 15)
+                    }
+                    .padding(.horizontal, 20)
                     
-                    let ratingTotalUsers = viewModel.productDetails?.ratingTotal ?? 0
-                    let ratingAverage = viewModel.productDetails?.ratingAverage ?? 0
                     HStack {
-                        MyCosmosView(rating: .constant(ratingAverage), starSize: 27)
-                        Text("\(ratingTotalUsers) Rating")
-                            .font(.system(size: 14))
-                            .foregroundColor(Color.blue)
-                            .padding(.horizontal, 10)
+                        Text("Specifications")
+                            .font(.system(size: 18))
+                            .foregroundColor(Color.black)
+                            .padding(.horizontal, 15)
+                        
+                        Spacer()
+
                     }
-                    .padding(.top, 15)
-                }
-                .padding(.horizontal, 20)
-                
-                HStack {
-                    Text("Specifications")
-                        .font(.system(size: 18))
+                    .frame(height: 60)
+                    .background(Color.backGroundGray)
+                    
+                    Text(String(describing: viewModel.productDetails?.description ?? ""))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .font(.system(size: 14))
                         .foregroundColor(Color.black)
-                        .padding(.horizontal, 15)
-                    
-                    Spacer()
-                    
+                        .padding([.horizontal, .top], 10)
                 }
-                .frame(height: 60)
-                .background(Color.backGroundGray)
-                
-                Text(String(describing: viewModel.productDetails?.description ?? ""))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .font(.system(size: 14))
-                    .foregroundColor(Color.black)
-                    .padding([.horizontal, .top], 10)
             }
         }
         Spacer()

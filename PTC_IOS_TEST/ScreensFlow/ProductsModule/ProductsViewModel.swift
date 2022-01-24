@@ -87,4 +87,9 @@ class ProductsViewModel {
         productsDataSource.removeAll()
         products.onNext(productsDataSource)
     }
+
+    func getProductIDForProduct(at index: Int) -> String? {
+        guard index < productsDataSource.count else { return nil }
+        return productsDataSource[index].productID
+    }
 }
